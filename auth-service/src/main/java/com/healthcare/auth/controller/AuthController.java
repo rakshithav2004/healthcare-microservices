@@ -1,6 +1,7 @@
 package com.healthcare.auth.controller;
 
 import com.healthcare.auth.dto.AuthResponse;
+import com.healthcare.auth.dto.LoginRequest;
 import com.healthcare.auth.dto.RegisterRequest;
 import com.healthcare.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -25,5 +26,12 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
