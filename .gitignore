@@ -17,3 +17,4 @@ target/
 Thumbs.db
 
 .mvn/wrapper/
+.mvn/wrapper/maven-wrapper.properties
