@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,14 +39,17 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<String> getCurrentUser() {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<String> getCurrentUser(Authentication authentication) {
 
         return ResponseEntity.ok(
                 "User ID: " + authentication.getName()
                         + ", Authorities: " + authentication.getAuthorities()
         );
+    }
+
+    @GetMapping("/patient-test")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<String> patientTest() {
+        return ResponseEntity.ok("Patient access granted");
     }
 }
