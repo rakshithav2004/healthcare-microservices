@@ -27,7 +27,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             String patientId,
             AppointmentRequest request) {
 
-        // Verify patient exists
         try {
             patientClient.getPatientById(patientId);
         } catch (Exception e) {
@@ -36,7 +35,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             );
         }
 
-        // Verify doctor exists
         try {
             doctorClient.getDoctorById(request.doctorId());
         } catch (Exception e) {
@@ -45,13 +43,25 @@ public class AppointmentServiceImpl implements AppointmentService {
             );
         }
 
-        // Check if doctor is already booked
+        LocalDateTime appointmentDateTime =
+                LocalDateTime.of(
+                        request.appointmentDate(),
+                        request.appointmentTime()
+                );
+
+        if (appointmentDateTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException(
+                    "Appointment date and time must be in the future"
+            );
+        }
+
         boolean alreadyBooked =
                 appointmentRepository
-                        .existsByDoctorIdAndAppointmentDateAndAppointmentTime(
+                        .existsByDoctorIdAndAppointmentDateAndAppointmentTimeAndStatusNot(
                                 request.doctorId(),
                                 request.appointmentDate(),
-                                request.appointmentTime()
+                                request.appointmentTime(),
+                                AppointmentStatus.CANCELLED
                         );
 
         if (alreadyBooked) {
@@ -140,6 +150,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             throw new IllegalStateException(
                     "You are not authorized to cancel this appointment"
+            );
+        }
+
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new IllegalStateException(
+                    "Appointment is already cancelled"
+            );
+        }
+
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new IllegalStateException(
+                    "Completed appointment cannot be cancelled"
             );
         }
 

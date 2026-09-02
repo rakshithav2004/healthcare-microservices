@@ -1,6 +1,7 @@
 package com.healthcare.appointment.repository;
 
 import com.healthcare.appointment.model.Appointment;
+import com.healthcare.appointment.model.AppointmentStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.time.LocalDate;
@@ -13,9 +14,10 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Stri
 
     List<Appointment> findByDoctorId(String doctorId);
 
-    boolean existsByDoctorIdAndAppointmentDateAndAppointmentTime(
+    boolean existsByDoctorIdAndAppointmentDateAndAppointmentTimeAndStatusNot(
             String doctorId,
             LocalDate appointmentDate,
-            LocalTime appointmentTime
+            LocalTime appointmentTime,
+            AppointmentStatus status
     );
 }
