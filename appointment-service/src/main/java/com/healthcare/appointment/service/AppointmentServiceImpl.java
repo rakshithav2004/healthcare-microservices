@@ -1,5 +1,6 @@
 package com.healthcare.appointment.service;
 
+import com.healthcare.appointment.client.DoctorClient;
 import com.healthcare.appointment.client.PatientClient;
 import com.healthcare.appointment.dto.AppointmentRequest;
 import com.healthcare.appointment.dto.AppointmentResponse;
@@ -19,18 +20,28 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final PatientClient patientClient;
+    private final DoctorClient doctorClient;
 
     @Override
     public AppointmentResponse bookAppointment(
             String patientId,
             AppointmentRequest request) {
 
-        // Verify that the patient exists
+        // Verify patient exists
         try {
             patientClient.getPatientById(patientId);
         } catch (Exception e) {
             throw new ResourceNotFoundException(
                     "Patient profile not found"
+            );
+        }
+
+        // Verify doctor exists
+        try {
+            doctorClient.getDoctorById(request.doctorId());
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(
+                    "Doctor profile not found"
             );
         }
 
