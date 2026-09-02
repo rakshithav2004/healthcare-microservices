@@ -1,11 +1,12 @@
 package com.healthcare.appointment.service;
 
+import com.healthcare.appointment.client.PatientClient;
 import com.healthcare.appointment.dto.AppointmentRequest;
 import com.healthcare.appointment.dto.AppointmentResponse;
+import com.healthcare.appointment.exception.ResourceNotFoundException;
 import com.healthcare.appointment.model.Appointment;
 import com.healthcare.appointment.model.AppointmentStatus;
 import com.healthcare.appointment.repository.AppointmentRepository;
-import com.healthcare.appointment.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,23 @@ import java.util.List;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final PatientClient patientClient;
 
     @Override
     public AppointmentResponse bookAppointment(
             String patientId,
             AppointmentRequest request) {
 
+        // Verify that the patient exists
+        try {
+            patientClient.getPatientById(patientId);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(
+                    "Patient profile not found"
+            );
+        }
+
+        // Check if doctor is already booked
         boolean alreadyBooked =
                 appointmentRepository
                         .existsByDoctorIdAndAppointmentDateAndAppointmentTime(
@@ -63,12 +75,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository
                 .findById(appointmentId)
                 .orElseThrow(() ->
-                        new RuntimeException("Appointment not found"));
+                        new ResourceNotFoundException(
+                                "Appointment not found"
+                        ));
 
         if (!appointment.getPatientId().equals(userId)
                 && !appointment.getDoctorId().equals(userId)) {
-            throw new RuntimeException(
-                    "You are not authorized to view this appointment");
+
+            throw new IllegalStateException(
+                    "You are not authorized to view this appointment"
+            );
         }
 
         return mapToResponse(appointment);
@@ -104,12 +120,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository
                 .findById(appointmentId)
                 .orElseThrow(() ->
-                        new RuntimeException("Appointment not found"));
+                        new ResourceNotFoundException(
+                                "Appointment not found"
+                        ));
 
         if (!appointment.getPatientId().equals(userId)
                 && !appointment.getDoctorId().equals(userId)) {
-            throw new RuntimeException(
-                    "You are not authorized to cancel this appointment");
+
+            throw new IllegalStateException(
+                    "You are not authorized to cancel this appointment"
+            );
         }
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
