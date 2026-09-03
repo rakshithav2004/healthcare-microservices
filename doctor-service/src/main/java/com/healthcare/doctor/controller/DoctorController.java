@@ -3,6 +3,8 @@ package com.healthcare.doctor.controller;
 import com.healthcare.doctor.dto.DoctorRequest;
 import com.healthcare.doctor.dto.DoctorResponse;
 import com.healthcare.doctor.service.DoctorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,11 @@ public class DoctorController {
 
     private final DoctorService doctorService;
 
+    @Operation(
+            summary = "Create doctor profile",
+            description = "Creates a profile for the authenticated doctor."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public ResponseEntity<DoctorResponse> createDoctor(
             Authentication authentication,
@@ -32,6 +39,11 @@ public class DoctorController {
                 .body(response);
     }
 
+    @Operation(
+            summary = "Get my profile",
+            description = "Returns the profile of the authenticated doctor."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
     public ResponseEntity<DoctorResponse> getMyProfile(
             Authentication authentication) {
@@ -43,6 +55,11 @@ public class DoctorController {
         );
     }
 
+    @Operation(
+            summary = "Update my profile",
+            description = "Updates the profile of the authenticated doctor."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/me")
     public ResponseEntity<DoctorResponse> updateMyProfile(
             Authentication authentication,
@@ -55,6 +72,11 @@ public class DoctorController {
         );
     }
 
+    @Operation(
+            summary = "Get doctor by ID",
+            description = "Returns a doctor profile using the user ID."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{userId}")
     public ResponseEntity<DoctorResponse> getDoctorByUserId(
             @PathVariable String userId) {
