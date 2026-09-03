@@ -3,6 +3,8 @@ package com.healthcare.patient.controller;
 import com.healthcare.patient.dto.PatientRequest;
 import com.healthcare.patient.dto.PatientResponse;
 import com.healthcare.patient.service.PatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,11 @@ public class PatientController {
 
     private final PatientService patientService;
 
+    @Operation(
+            summary = "Create patient profile",
+            description = "Creates a profile for the authenticated patient."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
             Authentication authentication,
@@ -32,6 +39,11 @@ public class PatientController {
                 .body(response);
     }
 
+    @Operation(
+            summary = "Get my profile",
+            description = "Returns the profile of the authenticated patient."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
     public ResponseEntity<PatientResponse> getMyProfile(
             Authentication authentication) {
@@ -43,6 +55,11 @@ public class PatientController {
         );
     }
 
+    @Operation(
+            summary = "Update my profile",
+            description = "Updates the profile of the authenticated patient."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/me")
     public ResponseEntity<PatientResponse> updateMyProfile(
             Authentication authentication,
@@ -55,6 +72,11 @@ public class PatientController {
         );
     }
 
+    @Operation(
+            summary = "Get patient by ID",
+            description = "Returns a patient profile using the user ID."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{userId}")
     public ResponseEntity<PatientResponse> getPatientByUserId(
             @PathVariable String userId) {
