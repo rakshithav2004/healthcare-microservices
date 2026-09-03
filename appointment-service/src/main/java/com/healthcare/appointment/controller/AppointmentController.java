@@ -83,4 +83,19 @@ public class AppointmentController {
                 )
         );
     }
+
+    @PutMapping("/{appointmentId}/confirm")
+    public ResponseEntity<AppointmentResponse> confirmAppointment(
+            Authentication authentication,
+            @PathVariable String appointmentId) {
+
+        String doctorId = authentication.getName();
+
+        return ResponseEntity.ok(
+                appointmentService.confirmAppointment(
+                        appointmentId,
+                        doctorId
+                )
+        );
+    }
 }
