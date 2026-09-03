@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -28,13 +29,30 @@ public class SecurityConfig {
                         )
                 )
 
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
+
                 .authorizeHttpRequests(auth -> auth
+
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/info").permitAll()
-                        .requestMatchers("/api/v1/appointments/**")
-                        .authenticated()
-                        .anyRequest()
-                        .authenticated()
+
+                        // DOCTOR ONLY
+                        .requestMatchers(
+                                "/api/v1/appointments/{appointmentId}/confirm",
+                                "/api/v1/appointments/{appointmentId}/complete",
+                                "/api/v1/appointments/doctor/**"
+                        ).hasRole("DOCTOR")
+
+                        // PATIENT ONLY
+                        .requestMatchers(
+                                "/api/v1/appointments",
+                                "/api/v1/appointments/patient/**",
+                                "/api/v1/appointments/{appointmentId}/cancel"
+                        ).hasRole("PATIENT")
+
+                        .anyRequest().authenticated()
                 )
 
                 .addFilterBefore(

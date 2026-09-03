@@ -6,21 +6,21 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(
+    public ResponseEntity<Map<String, Object>> handleNotFound(
             ResourceNotFoundException ex) {
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new LinkedHashMap<>();
 
-        response.put("status", 404);
         response.put("error", "Not Found");
         response.put("message", ex.getMessage());
+        response.put("status", 404);
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -31,11 +31,26 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalState(
             IllegalStateException ex) {
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new LinkedHashMap<>();
 
-        response.put("status", 409);
+        if (ex.getMessage() != null
+                && ex.getMessage().toLowerCase().contains("not authorized")) {
+
+            response.put("error", "Forbidden");
+            response.put(
+                    "message",
+                    "You are not authorized to perform this action"
+            );
+            response.put("status", 403);
+
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(response);
+        }
+
         response.put("error", "Conflict");
         response.put("message", ex.getMessage());
+        response.put("status", 409);
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -46,22 +61,23 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleValidation(
             MethodArgumentNotValidException ex) {
 
-        Map<String, String> fieldErrors = new HashMap<>();
+        Map<String, Object> errors = new LinkedHashMap<>();
 
         ex.getBindingResult()
                 .getFieldErrors()
                 .forEach(error ->
-                        fieldErrors.put(
+                        errors.put(
                                 error.getField(),
                                 error.getDefaultMessage()
                         )
                 );
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new LinkedHashMap<>();
 
-        response.put("status", 400);
         response.put("error", "Validation Failed");
-        response.put("fieldErrors", fieldErrors);
+        response.put("message", "Invalid request");
+        response.put("status", 400);
+        response.put("details", errors);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -69,14 +85,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneralException(
+    public ResponseEntity<Map<String, Object>> handleGeneral(
             Exception ex) {
 
-        Map<String, Object> response = new HashMap<>();
+        ex.printStackTrace();
 
-        response.put("status", 500);
+        Map<String, Object> response = new LinkedHashMap<>();
+
         response.put("error", "Internal Server Error");
         response.put("message", ex.getMessage());
+        response.put("status", 500);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
