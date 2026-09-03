@@ -173,6 +173,50 @@ public class AppointmentServiceImpl implements AppointmentService {
         return mapToResponse(updated);
     }
 
+    @Override
+    public AppointmentResponse completeAppointment(
+            String appointmentId,
+            String doctorId) {
+
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Appointment not found"
+                        ));
+
+        if (!appointment.getDoctorId().equals(doctorId)) {
+            throw new IllegalStateException(
+                    "You are not authorized to complete this appointment"
+            );
+        }
+
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new IllegalStateException(
+                    "Cancelled appointment cannot be completed"
+            );
+        }
+
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new IllegalStateException(
+                    "Appointment is already completed"
+            );
+        }
+
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+            throw new IllegalStateException(
+                    "Only confirmed appointments can be completed"
+            );
+        }
+
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointment.setUpdatedAt(LocalDateTime.now());
+
+        Appointment updated = appointmentRepository.save(appointment);
+
+        return mapToResponse(updated);
+    }
+
     private AppointmentResponse mapToResponse(
             Appointment appointment) {
 

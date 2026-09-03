@@ -31,4 +31,9 @@ public interface AppointmentService {
     );
 
     AppointmentResponse confirmAppointment(String appointmentId, String doctorId);
+
+    AppointmentResponse completeAppointment(
+            String appointmentId,
+            String doctorId
+    );
 }

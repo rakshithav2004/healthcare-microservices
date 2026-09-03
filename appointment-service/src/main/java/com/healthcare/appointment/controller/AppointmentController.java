@@ -98,4 +98,19 @@ public class AppointmentController {
                 )
         );
     }
+
+    @PutMapping("/{appointmentId}/complete")
+    public ResponseEntity<AppointmentResponse> completeAppointment(
+            Authentication authentication,
+            @PathVariable String appointmentId) {
+
+        String doctorId = authentication.getName();
+
+        return ResponseEntity.ok(
+                appointmentService.completeAppointment(
+                        appointmentId,
+                        doctorId
+                )
+        );
+    }
 }
