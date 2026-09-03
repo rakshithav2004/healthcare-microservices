@@ -52,6 +52,13 @@ public class SecurityConfig {
                                 "/api/v1/appointments/{appointmentId}/cancel"
                         ).hasRole("PATIENT")
 
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
+                        ).permitAll()
+
                         .anyRequest().authenticated()
                 )
 
