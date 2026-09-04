@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -18,12 +18,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(
             ResourceNotFoundException ex) {
 
-        Map<String, Object> response = Map.of(
-                "timestamp", LocalDateTime.now(),
-                "status", HttpStatus.NOT_FOUND.value(),
-                "error", "Not Found",
-                "message", ex.getMessage()
-        );
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -34,12 +34,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalState(
             IllegalStateException ex) {
 
-        Map<String, Object> response = Map.of(
-                "timestamp", LocalDateTime.now(),
-                "status", HttpStatus.CONFLICT.value(),
-                "error", "Conflict",
-                "message", ex.getMessage()
-        );
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("error", "Conflict");
+        response.put("message", ex.getMessage());
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleValidation(
             MethodArgumentNotValidException ex) {
 
-        Map<String, String> fieldErrors = new HashMap<>();
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
 
         for (FieldError error :
                 ex.getBindingResult().getFieldErrors()) {
@@ -61,12 +61,12 @@ public class GlobalExceptionHandler {
             );
         }
 
-        Map<String, Object> response = Map.of(
-                "timestamp", LocalDateTime.now(),
-                "status", HttpStatus.BAD_REQUEST.value(),
-                "error", "Validation Failed",
-                "message", fieldErrors
-        );
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Validation Failed");
+        response.put("message", fieldErrors);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -77,14 +77,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleGeneralException(
             Exception ex) {
 
-        ex.printStackTrace();
+        Map<String, Object> response = new LinkedHashMap<>();
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", 500);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Internal Server Error");
-        response.put("message", ex.getMessage());
+        response.put("message", "An unexpected error occurred");
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(response);
     }
 }
