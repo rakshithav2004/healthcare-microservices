@@ -27,6 +27,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             String patientId,
             AppointmentRequest request) {
 
+        // Verify patient profile exists
         try {
             patientClient.getPatientById(patientId);
         } catch (Exception e) {
@@ -35,6 +36,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             );
         }
 
+        // Verify doctor profile exists
         try {
             doctorClient.getDoctorById(request.doctorId());
         } catch (Exception e) {
@@ -43,6 +45,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             );
         }
 
+        // Validate appointment date and time
         LocalDateTime appointmentDateTime =
                 LocalDateTime.of(
                         request.appointmentDate(),
@@ -55,6 +58,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             );
         }
 
+        // Check whether doctor is already booked
         boolean alreadyBooked =
                 appointmentRepository
                         .existsByDoctorIdAndAppointmentDateAndAppointmentTimeAndStatusNot(
@@ -67,6 +71,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (alreadyBooked) {
             throw new IllegalStateException(
                     "Doctor is already booked for this time"
+            );
+        }
+
+        // Check whether patient already has an appointment
+        boolean patientAlreadyBooked =
+                appointmentRepository
+                        .existsByPatientIdAndAppointmentDateAndAppointmentTimeAndStatusNot(
+                                patientId,
+                                request.appointmentDate(),
+                                request.appointmentTime(),
+                                AppointmentStatus.CANCELLED
+                        );
+
+        if (patientAlreadyBooked) {
+            throw new IllegalStateException(
+                    "Patient already has an appointment at this time"
             );
         }
 
@@ -174,6 +194,50 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public AppointmentResponse confirmAppointment(
+            String appointmentId,
+            String doctorId) {
+
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Appointment not found"
+                        ));
+
+        if (!appointment.getDoctorId().equals(doctorId)) {
+            throw new IllegalStateException(
+                    "You are not authorized to confirm this appointment"
+            );
+        }
+
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new IllegalStateException(
+                    "Cancelled appointment cannot be confirmed"
+            );
+        }
+
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new IllegalStateException(
+                    "Completed appointment cannot be confirmed"
+            );
+        }
+
+        if (appointment.getStatus() != AppointmentStatus.BOOKED) {
+            throw new IllegalStateException(
+                    "Only booked appointments can be confirmed"
+            );
+        }
+
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        appointment.setUpdatedAt(LocalDateTime.now());
+
+        Appointment updated = appointmentRepository.save(appointment);
+
+        return mapToResponse(updated);
+    }
+
+    @Override
     public AppointmentResponse completeAppointment(
             String appointmentId,
             String doctorId) {
@@ -231,49 +295,5 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.getCreatedAt(),
                 appointment.getUpdatedAt()
         );
-    }
-
-    @Override
-    public AppointmentResponse confirmAppointment(
-            String appointmentId,
-            String doctorId) {
-
-        Appointment appointment = appointmentRepository
-                .findById(appointmentId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Appointment not found"
-                        ));
-
-        if (!appointment.getDoctorId().equals(doctorId)) {
-            throw new IllegalStateException(
-                    "You are not authorized to confirm this appointment"
-            );
-        }
-
-        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
-            throw new IllegalStateException(
-                    "Cancelled appointment cannot be confirmed"
-            );
-        }
-
-        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
-            throw new IllegalStateException(
-                    "Completed appointment cannot be confirmed"
-            );
-        }
-
-        if (appointment.getStatus() != AppointmentStatus.BOOKED) {
-            throw new IllegalStateException(
-                    "Only booked appointments can be confirmed"
-            );
-        }
-
-        appointment.setStatus(AppointmentStatus.CONFIRMED);
-        appointment.setUpdatedAt(LocalDateTime.now());
-
-        Appointment updated = appointmentRepository.save(appointment);
-
-        return mapToResponse(updated);
     }
 }

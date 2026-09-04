@@ -20,4 +20,11 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Stri
             LocalTime appointmentTime,
             AppointmentStatus status
     );
+
+    boolean existsByPatientIdAndAppointmentDateAndAppointmentTimeAndStatusNot(
+            String patientId,
+            LocalDate appointmentDate,
+            LocalTime appointmentTime,
+            AppointmentStatus status
+    );
 }
