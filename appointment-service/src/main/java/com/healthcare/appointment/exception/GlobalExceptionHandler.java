@@ -14,15 +14,15 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(
+    public ResponseEntity<ErrorResponse> handleNotFound(
             ResourceNotFoundException ex) {
 
-        Map<String, Object> response = new LinkedHashMap<>();
-
-        response.put("timestamp", LocalDateTime.now());
-        response.put("error", "Not Found");
-        response.put("message", ex.getMessage());
-        response.put("status", HttpStatus.NOT_FOUND.value());
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage()
+        );
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -30,31 +30,30 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalState(
+    public ResponseEntity<ErrorResponse> handleIllegalState(
             IllegalStateException ex) {
-
-        Map<String, Object> response = new LinkedHashMap<>();
 
         if (ex.getMessage() != null
                 && ex.getMessage().toLowerCase().contains("not authorized")) {
 
-            response.put("timestamp", LocalDateTime.now());
-            response.put("error", "Forbidden");
-            response.put(
-                    "message",
+            ErrorResponse response = new ErrorResponse(
+                    LocalDateTime.now(),
+                    HttpStatus.FORBIDDEN.value(),
+                    "Forbidden",
                     "You are not authorized to perform this action"
             );
-            response.put("status", HttpStatus.FORBIDDEN.value());
 
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(response);
         }
 
-        response.put("timestamp", LocalDateTime.now());
-        response.put("error", "Conflict");
-        response.put("message", ex.getMessage());
-        response.put("status", HttpStatus.CONFLICT.value());
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage()
+        );
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -62,7 +61,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(
+    public ResponseEntity<ErrorResponse> handleValidation(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new LinkedHashMap<>();
@@ -76,13 +75,12 @@ public class GlobalExceptionHandler {
                         )
                 );
 
-        Map<String, Object> response = new LinkedHashMap<>();
-
-        response.put("timestamp", LocalDateTime.now());
-        response.put("error", "Validation Failed");
-        response.put("message", "Invalid request");
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("details", errors);
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation Failed",
+                errors
+        );
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -90,20 +88,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneral(
+    public ResponseEntity<ErrorResponse> handleGeneral(
             Exception ex) {
 
-        Map<String, Object> response = new LinkedHashMap<>();
-
-        response.put("timestamp", LocalDateTime.now());
-        response.put("error", "Internal Server Error");
-        response.put(
-                "message",
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
                 "An unexpected error occurred"
-        );
-        response.put(
-                "status",
-                HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
 
         return ResponseEntity
