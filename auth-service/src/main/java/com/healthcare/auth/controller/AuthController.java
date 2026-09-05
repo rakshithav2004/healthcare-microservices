@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class AuthController {
 
     private final AuthService authService;
@@ -51,9 +52,9 @@ public class AuthController {
 
     @Operation(
             summary = "Get current user",
-            description = "Returns the authenticated user's ID and role."
+            description = "Returns the authenticated user's ID and authorities."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<String> getCurrentUser(
             Authentication authentication) {
@@ -67,9 +68,8 @@ public class AuthController {
 
     @Operation(
             summary = "Patient authorization test",
-            description = "Verifies that the user has the PATIENT role."
+            description = "Verifies that the authenticated user has the PATIENT role."
     )
-    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/patient-test")
     public ResponseEntity<String> patientTest() {
