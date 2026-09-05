@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/appointments")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
@@ -25,7 +27,7 @@ public class AppointmentController {
             summary = "Book an appointment",
             description = "Books an appointment with a doctor."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('PATIENT')")
     @PostMapping
     public ResponseEntity<AppointmentResponse> bookAppointment(
             Authentication authentication,
@@ -43,9 +45,8 @@ public class AppointmentController {
 
     @Operation(
             summary = "Get appointment by ID",
-            description = "Returns an appointment using its ID."
+            description = "Returns an appointment if the authenticated user is the patient or doctor assigned to it."
     )
-    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{appointmentId}")
     public ResponseEntity<AppointmentResponse> getAppointment(
             Authentication authentication,
@@ -65,7 +66,7 @@ public class AppointmentController {
             summary = "Get my appointments",
             description = "Returns all appointments of the authenticated patient."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/patient/me")
     public ResponseEntity<List<AppointmentResponse>> getMyAppointments(
             Authentication authentication) {
@@ -79,12 +80,21 @@ public class AppointmentController {
 
     @Operation(
             summary = "Get doctor appointments",
-            description = "Returns all appointments assigned to a doctor."
+            description = "Returns all appointments assigned to the authenticated doctor."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('DOCTOR')")
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<AppointmentResponse>> getDoctorAppointments(
+            Authentication authentication,
             @PathVariable String doctorId) {
+
+        String authenticatedDoctorId = authentication.getName();
+
+        if (!authenticatedDoctorId.equals(doctorId)) {
+            throw new IllegalStateException(
+                    "You are not authorized to view these appointments"
+            );
+        }
 
         return ResponseEntity.ok(
                 appointmentService.getDoctorAppointments(doctorId)
@@ -95,7 +105,7 @@ public class AppointmentController {
             summary = "Cancel appointment",
             description = "Cancels an appointment booked by the patient."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('PATIENT')")
     @PutMapping("/{appointmentId}/cancel")
     public ResponseEntity<AppointmentResponse> cancelAppointment(
             Authentication authentication,
@@ -115,7 +125,7 @@ public class AppointmentController {
             summary = "Confirm appointment",
             description = "Confirms a booked appointment as a doctor."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('DOCTOR')")
     @PutMapping("/{appointmentId}/confirm")
     public ResponseEntity<AppointmentResponse> confirmAppointment(
             Authentication authentication,
@@ -135,7 +145,7 @@ public class AppointmentController {
             summary = "Complete appointment",
             description = "Marks a confirmed appointment as completed."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('DOCTOR')")
     @PutMapping("/{appointmentId}/complete")
     public ResponseEntity<AppointmentResponse> completeAppointment(
             Authentication authentication,
