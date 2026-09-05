@@ -9,12 +9,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/doctors")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class DoctorController {
 
     private final DoctorService doctorService;
@@ -23,7 +25,7 @@ public class DoctorController {
             summary = "Create doctor profile",
             description = "Creates a profile for the authenticated doctor."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping
     public ResponseEntity<DoctorResponse> createDoctor(
             Authentication authentication,
@@ -43,7 +45,7 @@ public class DoctorController {
             summary = "Get my profile",
             description = "Returns the profile of the authenticated doctor."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('DOCTOR')")
     @GetMapping("/me")
     public ResponseEntity<DoctorResponse> getMyProfile(
             Authentication authentication) {
@@ -59,7 +61,7 @@ public class DoctorController {
             summary = "Update my profile",
             description = "Updates the profile of the authenticated doctor."
     )
-    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('DOCTOR')")
     @PutMapping("/me")
     public ResponseEntity<DoctorResponse> updateMyProfile(
             Authentication authentication,
@@ -73,13 +75,21 @@ public class DoctorController {
     }
 
     @Operation(
-            summary = "Get doctor by ID",
+            summary = "Get doctor by user ID",
             description = "Returns a doctor profile using the user ID."
     )
-    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{userId}")
     public ResponseEntity<DoctorResponse> getDoctorByUserId(
+            Authentication authentication,
             @PathVariable String userId) {
+
+        String authenticatedUserId = authentication.getName();
+
+        if (!authenticatedUserId.equals(userId)) {
+            throw new IllegalStateException(
+                    "You are not authorized to view this doctor profile"
+            );
+        }
 
         return ResponseEntity.ok(
                 doctorService.getDoctorByUserId(userId)
