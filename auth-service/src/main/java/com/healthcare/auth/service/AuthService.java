@@ -7,6 +7,7 @@ import com.healthcare.auth.model.User;
 import com.healthcare.auth.repository.UserRepository;
 import com.healthcare.auth.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -22,8 +24,22 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
 
+        log.info(
+                "Registration attempt: email={}, role={}",
+                request.getEmail(),
+                request.getRole()
+        );
+
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalStateException("User already exists with email: " + request.getEmail());
+
+            log.warn(
+                    "Registration failed: user already exists, email={}",
+                    request.getEmail()
+            );
+
+            throw new IllegalStateException(
+                    "User already exists with email: " + request.getEmail()
+            );
         }
 
         User user = User.builder()
@@ -35,6 +51,12 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
+        log.info(
+                "User registered successfully: userId={}, role={}",
+                savedUser.getId(),
+                savedUser.getRole()
+        );
+
         return AuthResponse.builder()
                 .userId(savedUser.getId())
                 .email(savedUser.getEmail())
@@ -44,18 +66,48 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new IllegalStateException("Invalid email or password"));
+        log.info(
+                "Login attempt: email={}",
+                request.getEmail()
+        );
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalStateException("Invalid email or password");
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> {
+
+                    log.warn(
+                            "Login failed: user not found, email={}",
+                            request.getEmail()
+                    );
+
+                    return new IllegalStateException(
+                            "Invalid email or password"
+                    );
+                });
+
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword())) {
+
+            log.warn(
+                    "Login failed: invalid password, email={}",
+                    request.getEmail()
+            );
+
+            throw new IllegalStateException(
+                    "Invalid email or password"
+            );
         }
 
         String token = jwtService.generateToken(
                 user.getId(),
                 user.getEmail(),
                 user.getRole().name()
+        );
+
+        log.info(
+                "Login successful: userId={}, role={}",
+                user.getId(),
+                user.getRole()
         );
 
         return AuthResponse.builder()
