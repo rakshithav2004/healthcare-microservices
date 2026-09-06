@@ -7,21 +7,38 @@ import com.healthcare.patient.exception.ResourceNotFoundException;
 import com.healthcare.patient.model.Patient;
 import com.healthcare.patient.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
 
     @Override
-    public PatientResponse createPatient(String userId, PatientRequest request) {
+    public PatientResponse createPatient(
+            String userId,
+            PatientRequest request) {
+
+        log.info(
+                "Creating patient profile: userId={}",
+                userId
+        );
 
         if (patientRepository.existsByUserId(userId)) {
-            throw new ResourceAlreadyExistsException("Patient profile already exists");
+
+            log.warn(
+                    "Patient profile already exists: userId={}",
+                    userId
+            );
+
+            throw new ResourceAlreadyExistsException(
+                    "Patient profile already exists"
+            );
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -40,15 +57,35 @@ public class PatientServiceImpl implements PatientService {
 
         Patient savedPatient = patientRepository.save(patient);
 
+        log.info(
+                "Patient profile created successfully: patientId={}, userId={}",
+                savedPatient.getId(),
+                userId
+        );
+
         return mapToResponse(savedPatient);
     }
 
     @Override
     public PatientResponse getPatientByUserId(String userId) {
 
+        log.info(
+                "Fetching patient profile: userId={}",
+                userId
+        );
+
         Patient patient = patientRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient profile not found"));
+                .orElseThrow(() -> {
+
+                    log.warn(
+                            "Patient profile not found: userId={}",
+                            userId
+                    );
+
+                    return new ResourceNotFoundException(
+                            "Patient profile not found"
+                    );
+                });
 
         return mapToResponse(patient);
     }
@@ -58,9 +95,23 @@ public class PatientServiceImpl implements PatientService {
             String userId,
             PatientRequest request) {
 
+        log.info(
+                "Updating patient profile: userId={}",
+                userId
+        );
+
         Patient patient = patientRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient profile not found"));
+                .orElseThrow(() -> {
+
+                    log.warn(
+                            "Patient profile not found for update: userId={}",
+                            userId
+                    );
+
+                    return new ResourceNotFoundException(
+                            "Patient profile not found"
+                    );
+                });
 
         patient.setFirstName(request.getFirstName());
         patient.setLastName(request.getLastName());
@@ -71,6 +122,11 @@ public class PatientServiceImpl implements PatientService {
         patient.setUpdatedAt(LocalDateTime.now());
 
         Patient updatedPatient = patientRepository.save(patient);
+
+        log.info(
+                "Patient profile updated successfully: userId={}",
+                userId
+        );
 
         return mapToResponse(updatedPatient);
     }
