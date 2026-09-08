@@ -2,18 +2,23 @@ package com.healthcare.auth.security;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
+@ActiveProfiles("test")
 class JwtServiceTest {
 
     private JwtService jwtService;
 
-    private final String secret =
-            "HealthcareMicroservicesJwtSecret2026SecureKeyForDevelopmentOnly123456";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final long expiration =
-            3600000L;
+    @Value("${jwt.expiration}")
+    private long expiration;
 
     @BeforeEach
     void setUp() {
@@ -46,8 +51,7 @@ class JwtServiceTest {
                 "PATIENT"
         );
 
-        String userId =
-                jwtService.extractUserId(token);
+        String userId = jwtService.extractUserId(token);
 
         assertThat(userId)
                 .isEqualTo("user-123");
@@ -62,8 +66,7 @@ class JwtServiceTest {
                 "PATIENT"
         );
 
-        String role =
-                jwtService.extractRole(token);
+        String role = jwtService.extractRole(token);
 
         assertThat(role)
                 .isEqualTo("PATIENT");
