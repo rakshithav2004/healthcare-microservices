@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -30,6 +32,16 @@ public class SecurityConfig {
                         )
                 )
 
+                .exceptionHandling(exception ->
+                        exception
+                                .authenticationEntryPoint(
+                                        customAuthenticationEntryPoint
+                                )
+                                .accessDeniedHandler(
+                                        customAccessDeniedHandler
+                                )
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/info").permitAll()
@@ -40,6 +52,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/webjars/**"
                         ).permitAll()
+
                         .anyRequest().authenticated()
                 )
 
