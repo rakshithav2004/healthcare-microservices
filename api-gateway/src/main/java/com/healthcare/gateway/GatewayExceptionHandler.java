@@ -1,4 +1,4 @@
-package com.healthcare.gateway.gateway;
+package com.healthcare.gateway;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

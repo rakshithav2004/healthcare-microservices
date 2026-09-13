@@ -1,4 +1,4 @@
-package com.healthcare.gateway.gateway;
+package com.healthcare.gateway;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
