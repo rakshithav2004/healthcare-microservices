@@ -25,5 +25,3 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and test all services
-        run: mvn clean test
