@@ -19,80 +19,61 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 public class DoctorController {
 
-    private final DoctorService doctorService;
+  private final DoctorService doctorService;
 
-    @Operation(
-            summary = "Create doctor profile",
-            description = "Creates a profile for the authenticated doctor."
-    )
-    @PreAuthorize("hasRole('DOCTOR')")
-    @PostMapping
-    public ResponseEntity<DoctorResponse> createDoctor(
-            Authentication authentication,
-            @Valid @RequestBody DoctorRequest request) {
+  @Operation(
+      summary = "Create doctor profile",
+      description = "Creates a profile for the authenticated doctor.")
+  @PreAuthorize("hasRole('DOCTOR')")
+  @PostMapping
+  public ResponseEntity<DoctorResponse> createDoctor(
+      Authentication authentication, @Valid @RequestBody DoctorRequest request) {
 
-        String userId = authentication.getName();
+    String userId = authentication.getName();
 
-        DoctorResponse response =
-                doctorService.createDoctor(userId, request);
+    DoctorResponse response = doctorService.createDoctor(userId, request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @Operation(
+      summary = "Get my profile",
+      description = "Returns the profile of the authenticated doctor.")
+  @PreAuthorize("hasRole('DOCTOR')")
+  @GetMapping("/me")
+  public ResponseEntity<DoctorResponse> getMyProfile(Authentication authentication) {
+
+    String userId = authentication.getName();
+
+    return ResponseEntity.ok(doctorService.getDoctorByUserId(userId));
+  }
+
+  @Operation(
+      summary = "Update my profile",
+      description = "Updates the profile of the authenticated doctor.")
+  @PreAuthorize("hasRole('DOCTOR')")
+  @PutMapping("/me")
+  public ResponseEntity<DoctorResponse> updateMyProfile(
+      Authentication authentication, @Valid @RequestBody DoctorRequest request) {
+
+    String userId = authentication.getName();
+
+    return ResponseEntity.ok(doctorService.updateDoctor(userId, request));
+  }
+
+  @Operation(
+      summary = "Get doctor by user ID",
+      description = "Returns a doctor profile using the user ID.")
+  @GetMapping("/{userId}")
+  public ResponseEntity<DoctorResponse> getDoctorByUserId(
+      Authentication authentication, @PathVariable String userId) {
+
+    String authenticatedUserId = authentication.getName();
+
+    if (!authenticatedUserId.equals(userId)) {
+      throw new IllegalStateException("You are not authorized to view this doctor profile");
     }
 
-    @Operation(
-            summary = "Get my profile",
-            description = "Returns the profile of the authenticated doctor."
-    )
-    @PreAuthorize("hasRole('DOCTOR')")
-    @GetMapping("/me")
-    public ResponseEntity<DoctorResponse> getMyProfile(
-            Authentication authentication) {
-
-        String userId = authentication.getName();
-
-        return ResponseEntity.ok(
-                doctorService.getDoctorByUserId(userId)
-        );
-    }
-
-    @Operation(
-            summary = "Update my profile",
-            description = "Updates the profile of the authenticated doctor."
-    )
-    @PreAuthorize("hasRole('DOCTOR')")
-    @PutMapping("/me")
-    public ResponseEntity<DoctorResponse> updateMyProfile(
-            Authentication authentication,
-            @Valid @RequestBody DoctorRequest request) {
-
-        String userId = authentication.getName();
-
-        return ResponseEntity.ok(
-                doctorService.updateDoctor(userId, request)
-        );
-    }
-
-    @Operation(
-            summary = "Get doctor by user ID",
-            description = "Returns a doctor profile using the user ID."
-    )
-    @GetMapping("/{userId}")
-    public ResponseEntity<DoctorResponse> getDoctorByUserId(
-            Authentication authentication,
-            @PathVariable String userId) {
-
-        String authenticatedUserId = authentication.getName();
-
-        if (!authenticatedUserId.equals(userId)) {
-            throw new IllegalStateException(
-                    "You are not authorized to view this doctor profile"
-            );
-        }
-
-        return ResponseEntity.ok(
-                doctorService.getDoctorByUserId(userId)
-        );
-    }
+    return ResponseEntity.ok(doctorService.getDoctorByUserId(userId));
+  }
 }

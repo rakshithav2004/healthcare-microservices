@@ -1,49 +1,44 @@
 package com.healthcare.gateway;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class GatewayRoutesConfigTest {
 
-    private final GatewayRoutesConfig config =
-            new GatewayRoutesConfig();
+  private final GatewayRoutesConfig config = new GatewayRoutesConfig();
 
-    @Test
-    void shouldCreateAuthRoute() {
+  @Test
+  void shouldCreateAuthRoute() {
 
-        RouterFunction<ServerResponse> route =
-                config.authRoute();
+    RouterFunction<ServerResponse> route = config.authRoute();
 
-        assertNotNull(route);
-    }
+    assertNotNull(route);
+  }
 
-    @Test
-    void shouldCreatePatientRoute() {
+  @Test
+  void shouldCreatePatientRoute() {
 
-        RouterFunction<ServerResponse> route =
-                config.patientRoute();
+    RouterFunction<ServerResponse> route = config.patientRoute();
 
-        assertNotNull(route);
-    }
+    assertNotNull(route);
+  }
 
-    @Test
-    void shouldCreateDoctorRoute() {
+  @Test
+  void shouldCreateDoctorRoute() {
 
-        RouterFunction<ServerResponse> route =
-                config.doctorRoute();
+    RouterFunction<ServerResponse> route = config.doctorRoute();
 
-        assertNotNull(route);
-    }
+    assertNotNull(route);
+  }
 
-    @Test
-    void shouldCreateAppointmentRoute() {
+  @Test
+  void shouldCreateAppointmentRoute() {
 
-        RouterFunction<ServerResponse> route =
-                config.appointmentRoute();
+    RouterFunction<ServerResponse> route = config.appointmentRoute();
 
-        assertNotNull(route);
-    }
+    assertNotNull(route);
+  }
 }

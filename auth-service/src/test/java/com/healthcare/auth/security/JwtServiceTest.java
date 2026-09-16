@@ -1,90 +1,66 @@
 package com.healthcare.auth.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @ActiveProfiles("test")
 class JwtServiceTest {
 
-    private JwtService jwtService;
+  private JwtService jwtService;
 
-    @Value("${jwt.secret}")
-    private String secret;
+  @Value("${jwt.secret}")
+  private String secret;
 
-    @Value("${jwt.expiration}")
-    private long expiration;
+  @Value("${jwt.expiration}")
+  private long expiration;
 
-    @BeforeEach
-    void setUp() {
+  @BeforeEach
+  void setUp() {
 
-        jwtService = new JwtService(
-                secret,
-                expiration
-        );
-    }
+    jwtService = new JwtService(secret, expiration);
+  }
 
-    @Test
-    void generateToken_shouldCreateValidToken() {
+  @Test
+  void generateToken_shouldCreateValidToken() {
 
-        String token = jwtService.generateToken(
-                "user-123",
-                "patient@example.com",
-                "PATIENT"
-        );
+    String token = jwtService.generateToken("user-123", "patient@example.com", "PATIENT");
 
-        assertThat(token)
-                .isNotBlank();
-    }
+    assertThat(token).isNotBlank();
+  }
 
-    @Test
-    void extractUserId_shouldReturnCorrectUserId() {
+  @Test
+  void extractUserId_shouldReturnCorrectUserId() {
 
-        String token = jwtService.generateToken(
-                "user-123",
-                "patient@example.com",
-                "PATIENT"
-        );
+    String token = jwtService.generateToken("user-123", "patient@example.com", "PATIENT");
 
-        String userId = jwtService.extractUserId(token);
+    String userId = jwtService.extractUserId(token);
 
-        assertThat(userId)
-                .isEqualTo("user-123");
-    }
+    assertThat(userId).isEqualTo("user-123");
+  }
 
-    @Test
-    void extractRole_shouldReturnCorrectRole() {
+  @Test
+  void extractRole_shouldReturnCorrectRole() {
 
-        String token = jwtService.generateToken(
-                "user-123",
-                "patient@example.com",
-                "PATIENT"
-        );
+    String token = jwtService.generateToken("user-123", "patient@example.com", "PATIENT");
 
-        String role = jwtService.extractRole(token);
+    String role = jwtService.extractRole(token);
 
-        assertThat(role)
-                .isEqualTo("PATIENT");
-    }
+    assertThat(role).isEqualTo("PATIENT");
+  }
 
-    @Test
-    void generateToken_shouldContainUserIdAndRole() {
+  @Test
+  void generateToken_shouldContainUserIdAndRole() {
 
-        String token = jwtService.generateToken(
-                "doctor-123",
-                "doctor@example.com",
-                "DOCTOR"
-        );
+    String token = jwtService.generateToken("doctor-123", "doctor@example.com", "DOCTOR");
 
-        assertThat(jwtService.extractUserId(token))
-                .isEqualTo("doctor-123");
+    assertThat(jwtService.extractUserId(token)).isEqualTo("doctor-123");
 
-        assertThat(jwtService.extractRole(token))
-                .isEqualTo("DOCTOR");
-    }
+    assertThat(jwtService.extractRole(token)).isEqualTo("DOCTOR");
+  }
 }

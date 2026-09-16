@@ -5,9 +5,9 @@ import com.healthcare.doctor.dto.DoctorResponse;
 
 public interface DoctorService {
 
-    DoctorResponse createDoctor(String userId, DoctorRequest request);
+  DoctorResponse createDoctor(String userId, DoctorRequest request);
 
-    DoctorResponse getDoctorByUserId(String userId);
+  DoctorResponse getDoctorByUserId(String userId);
 
-    DoctorResponse updateDoctor(String userId, DoctorRequest request);
+  DoctorResponse updateDoctor(String userId, DoctorRequest request);
 }

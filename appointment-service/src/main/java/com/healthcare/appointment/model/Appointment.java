@@ -1,5 +1,8 @@
 package com.healthcare.appointment.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,10 +11,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 @Document(collection = "appointments")
 @Data
 @Builder
@@ -19,24 +18,21 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class Appointment {
 
-    @Id
-    private String id;
+  @Id private String id;
 
-    @Indexed
-    private String patientId;
+  @Indexed private String patientId;
 
-    @Indexed
-    private String doctorId;
+  @Indexed private String doctorId;
 
-    private LocalDate appointmentDate;
+  private LocalDate appointmentDate;
 
-    private LocalTime appointmentTime;
+  private LocalTime appointmentTime;
 
-    private String reason;
+  private String reason;
 
-    private AppointmentStatus status;
+  private AppointmentStatus status;
 
-    private LocalDateTime createdAt;
+  private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt;
+  private LocalDateTime updatedAt;
 }

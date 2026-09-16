@@ -1,57 +1,45 @@
 package com.healthcare.auth.exception;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class GlobalExceptionHandlerTest {
 
-    private final GlobalExceptionHandler handler =
-            new GlobalExceptionHandler();
+  private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
-    @Test
-    void handleIllegalState_shouldReturnConflict() {
+  @Test
+  void handleIllegalState_shouldReturnConflict() {
 
-        IllegalStateException exception =
-                new IllegalStateException("User already exists");
+    IllegalStateException exception = new IllegalStateException("User already exists");
 
-        ResponseEntity<ErrorResponse> response =
-                handler.handleIllegalState(exception);
+    ResponseEntity<ErrorResponse> response = handler.handleIllegalState(exception);
 
-        assertThat(response.getStatusCode().value())
-                .isEqualTo(HttpStatus.CONFLICT.value());
+    assertThat(response.getStatusCode().value()).isEqualTo(HttpStatus.CONFLICT.value());
 
-        assertThat(response.getBody())
-                .isNotNull();
+    assertThat(response.getBody()).isNotNull();
 
-        assertThat(response.getBody().error())
-                .isEqualTo("Conflict");
+    assertThat(response.getBody().error()).isEqualTo("Conflict");
 
-        assertThat(response.getBody().message())
-                .isEqualTo("User already exists");
-    }
+    assertThat(response.getBody().message()).isEqualTo("User already exists");
+  }
 
-    @Test
-    void handleGeneralException_shouldReturnInternalServerError() {
+  @Test
+  void handleGeneralException_shouldReturnInternalServerError() {
 
-        Exception exception =
-                new Exception("Database connection failed");
+    Exception exception = new Exception("Database connection failed");
 
-        ResponseEntity<ErrorResponse> response =
-                handler.handleGeneralException(exception);
+    ResponseEntity<ErrorResponse> response = handler.handleGeneralException(exception);
 
-        assertThat(response.getStatusCode().value())
-                .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    assertThat(response.getStatusCode().value())
+        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 
-        assertThat(response.getBody())
-                .isNotNull();
+    assertThat(response.getBody()).isNotNull();
 
-        assertThat(response.getBody().error())
-                .isEqualTo("Internal Server Error");
+    assertThat(response.getBody().error()).isEqualTo("Internal Server Error");
 
-        assertThat(response.getBody().message())
-                .isEqualTo("An unexpected error occurred");
-    }
+    assertThat(response.getBody().message()).isEqualTo("An unexpected error occurred");
+  }
 }

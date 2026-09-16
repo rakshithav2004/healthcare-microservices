@@ -1,147 +1,116 @@
 package com.healthcare.patient.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @ActiveProfiles("test")
 class JwtServiceTest {
 
-    @Value("${jwt.secret}")
-    private String secret;
+  @Value("${jwt.secret}")
+  private String secret;
 
-    private JwtService jwtService;
+  private JwtService jwtService;
 
-    private SecretKey secretKey;
+  private SecretKey secretKey;
 
-    @BeforeEach
-    void setUp() {
+  @BeforeEach
+  void setUp() {
 
-        jwtService = new JwtService(secret);
+    jwtService = new JwtService(secret);
 
-        secretKey = Keys.hmacShaKeyFor(
-                secret.getBytes(StandardCharsets.UTF_8)
-        );
-    }
+    secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+  }
 
-    @Test
-    void extractUserId_shouldReturnUserId() {
+  @Test
+  void extractUserId_shouldReturnUserId() {
 
-        String token = createToken(
-                "user-123",
-                "PATIENT"
-        );
+    String token = createToken("user-123", "PATIENT");
 
-        String userId =
-                jwtService.extractUserId(token);
+    String userId = jwtService.extractUserId(token);
 
-        assertThat(userId)
-                .isEqualTo("user-123");
-    }
+    assertThat(userId).isEqualTo("user-123");
+  }
 
-    @Test
-    void extractRole_shouldReturnRole() {
+  @Test
+  void extractRole_shouldReturnRole() {
 
-        String token = createToken(
-                "user-123",
-                "PATIENT"
-        );
+    String token = createToken("user-123", "PATIENT");
 
-        String role =
-                jwtService.extractRole(token);
+    String role = jwtService.extractRole(token);
 
-        assertThat(role)
-                .isEqualTo("PATIENT");
-    }
+    assertThat(role).isEqualTo("PATIENT");
+  }
 
-    @Test
-    void extractAllClaims_shouldReturnClaims() {
+  @Test
+  void extractAllClaims_shouldReturnClaims() {
 
-        String token = createToken(
-                "user-123",
-                "DOCTOR"
-        );
+    String token = createToken("user-123", "DOCTOR");
 
-        var claims =
-                jwtService.extractAllClaims(token);
+    var claims = jwtService.extractAllClaims(token);
 
-        assertThat(claims.getSubject())
-                .isEqualTo("user-123");
+    assertThat(claims.getSubject()).isEqualTo("user-123");
 
-        assertThat(claims.get("role", String.class))
-                .isEqualTo("DOCTOR");
-    }
+    assertThat(claims.get("role", String.class)).isEqualTo("DOCTOR");
+  }
 
-    @Test
-    void isTokenValid_shouldReturnTrueForValidToken() {
+  @Test
+  void isTokenValid_shouldReturnTrueForValidToken() {
 
-        String token = createToken(
-                "user-123",
-                "PATIENT"
-        );
+    String token = createToken("user-123", "PATIENT");
 
-        boolean valid =
-                jwtService.isTokenValid(token);
+    boolean valid = jwtService.isTokenValid(token);
 
-        assertThat(valid).isTrue();
-    }
+    assertThat(valid).isTrue();
+  }
 
-    @Test
-    void isTokenValid_shouldReturnFalseForInvalidToken() {
+  @Test
+  void isTokenValid_shouldReturnFalseForInvalidToken() {
 
-        boolean valid =
-                jwtService.isTokenValid("invalid-token");
+    boolean valid = jwtService.isTokenValid("invalid-token");
 
-        assertThat(valid).isFalse();
-    }
+    assertThat(valid).isFalse();
+  }
 
-    @Test
-    void isTokenValid_shouldReturnFalseForTokenSignedWithWrongSecret() {
+  @Test
+  void isTokenValid_shouldReturnFalseForTokenSignedWithWrongSecret() {
 
-        SecretKey wrongKey = Keys.hmacShaKeyFor(
-                "AnotherDifferentSecretKeyForTesting123456789"
-                        .getBytes(StandardCharsets.UTF_8)
-        );
+    SecretKey wrongKey =
+        Keys.hmacShaKeyFor(
+            "AnotherDifferentSecretKeyForTesting123456789".getBytes(StandardCharsets.UTF_8));
 
-        String token = Jwts.builder()
-                .subject("user-123")
-                .claim("role", "PATIENT")
-                .issuedAt(new Date())
-                .expiration(
-                        new Date(System.currentTimeMillis() + 3600000)
-                )
-                .signWith(wrongKey)
-                .compact();
+    String token =
+        Jwts.builder()
+            .subject("user-123")
+            .claim("role", "PATIENT")
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + 3600000))
+            .signWith(wrongKey)
+            .compact();
 
-        boolean valid =
-                jwtService.isTokenValid(token);
+    boolean valid = jwtService.isTokenValid(token);
 
-        assertThat(valid).isFalse();
-    }
+    assertThat(valid).isFalse();
+  }
 
-    private String createToken(
-            String userId,
-            String role) {
+  private String createToken(String userId, String role) {
 
-        return Jwts.builder()
-                .subject(userId)
-                .claim("role", role)
-                .issuedAt(new Date())
-                .expiration(
-                        new Date(System.currentTimeMillis() + 3600000)
-                )
-                .signWith(secretKey)
-                .compact();
-    }
+    return Jwts.builder()
+        .subject(userId)
+        .claim("role", role)
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + 3600000))
+        .signWith(secretKey)
+        .compact();
+  }
 }

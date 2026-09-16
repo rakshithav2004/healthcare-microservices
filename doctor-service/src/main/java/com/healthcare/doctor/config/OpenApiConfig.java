@@ -10,24 +10,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI customOpenAPI() {
+  @Bean
+  public OpenAPI customOpenAPI() {
 
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Healthcare Doctor Service API")
-                        .version("1.0")
-                        .description("APIs for managing doctor profiles.")
-                )
-                .components(
-                        new Components()
-                                .addSecuritySchemes(
-                                        "bearerAuth",
-                                        new SecurityScheme()
-                                                .type(SecurityScheme.Type.HTTP)
-                                                .scheme("bearer")
-                                                .bearerFormat("JWT")
-                                )
-                );
-    }
+    return new OpenAPI()
+        .info(
+            new Info()
+                .title("Healthcare Doctor Service API")
+                .version("1.0")
+                .description("APIs for managing doctor profiles."))
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "bearerAuth",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")));
+  }
 }

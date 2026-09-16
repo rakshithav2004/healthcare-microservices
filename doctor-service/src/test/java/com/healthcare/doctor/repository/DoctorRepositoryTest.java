@@ -1,141 +1,98 @@
 package com.healthcare.doctor.repository;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.healthcare.doctor.model.Doctor;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 class DoctorRepositoryTest {
 
-    @Autowired
-    private DoctorRepository doctorRepository;
+  @Autowired private DoctorRepository doctorRepository;
 
+  @Test
+  void existsByUserId_shouldReturnTrue_whenDoctorExists() {
 
-    @Test
-    void existsByUserId_shouldReturnTrue_whenDoctorExists() {
+    Doctor doctor = createDoctor("doctor-user-test", "user-doctor-test", "LIC-USER-TEST");
 
-        Doctor doctor = createDoctor(
-                "doctor-user-test",
-                "user-doctor-test",
-                "LIC-USER-TEST"
-        );
+    doctorRepository.save(doctor);
 
-        doctorRepository.save(doctor);
+    boolean result = doctorRepository.existsByUserId("user-doctor-test");
 
-        boolean result =
-                doctorRepository.existsByUserId("user-doctor-test");
+    assertTrue(result);
+  }
 
-        assertTrue(result);
-    }
+  @Test
+  void existsByUserId_shouldReturnFalse_whenDoctorDoesNotExist() {
 
+    boolean result = doctorRepository.existsByUserId("unknown-user");
 
-    @Test
-    void existsByUserId_shouldReturnFalse_whenDoctorDoesNotExist() {
+    assertFalse(result);
+  }
 
-        boolean result =
-                doctorRepository.existsByUserId("unknown-user");
+  @Test
+  void findByUserId_shouldReturnDoctor_whenDoctorExists() {
 
-        assertFalse(result);
-    }
+    Doctor doctor = createDoctor("doctor-find-test", "user-find-test", "LIC-FIND-TEST");
 
+    doctorRepository.save(doctor);
 
-    @Test
-    void findByUserId_shouldReturnDoctor_whenDoctorExists() {
+    Optional<Doctor> result = doctorRepository.findByUserId("user-find-test");
 
-        Doctor doctor = createDoctor(
-                "doctor-find-test",
-                "user-find-test",
-                "LIC-FIND-TEST"
-        );
+    assertTrue(result.isPresent());
+    assertEquals("user-find-test", result.get().getUserId());
+    assertEquals("John", result.get().getFirstName());
+    assertEquals("Cardiology", result.get().getSpecialization());
+  }
 
-        doctorRepository.save(doctor);
+  @Test
+  void findByUserId_shouldReturnEmpty_whenDoctorDoesNotExist() {
 
-        Optional<Doctor> result =
-                doctorRepository.findByUserId("user-find-test");
+    Optional<Doctor> result = doctorRepository.findByUserId("unknown-user");
 
-        assertTrue(result.isPresent());
-        assertEquals(
-                "user-find-test",
-                result.get().getUserId()
-        );
-        assertEquals(
-                "John",
-                result.get().getFirstName()
-        );
-        assertEquals(
-                "Cardiology",
-                result.get().getSpecialization()
-        );
-    }
+    assertTrue(result.isEmpty());
+  }
 
+  @Test
+  void existsByLicenseNumber_shouldReturnTrue_whenLicenseExists() {
 
-    @Test
-    void findByUserId_shouldReturnEmpty_whenDoctorDoesNotExist() {
+    Doctor doctor = createDoctor("doctor-license-test", "user-license-test", "LIC-EXISTS-TEST");
 
-        Optional<Doctor> result =
-                doctorRepository.findByUserId("unknown-user");
+    doctorRepository.save(doctor);
 
-        assertTrue(result.isEmpty());
-    }
+    boolean result = doctorRepository.existsByLicenseNumber("LIC-EXISTS-TEST");
 
+    assertTrue(result);
+  }
 
-    @Test
-    void existsByLicenseNumber_shouldReturnTrue_whenLicenseExists() {
+  @Test
+  void existsByLicenseNumber_shouldReturnFalse_whenLicenseDoesNotExist() {
 
-        Doctor doctor = createDoctor(
-                "doctor-license-test",
-                "user-license-test",
-                "LIC-EXISTS-TEST"
-        );
+    boolean result = doctorRepository.existsByLicenseNumber("LIC-NOT-EXISTS");
 
-        doctorRepository.save(doctor);
+    assertFalse(result);
+  }
 
-        boolean result =
-                doctorRepository.existsByLicenseNumber(
-                        "LIC-EXISTS-TEST"
-                );
+  private Doctor createDoctor(String id, String userId, String licenseNumber) {
 
-        assertTrue(result);
-    }
-
-
-    @Test
-    void existsByLicenseNumber_shouldReturnFalse_whenLicenseDoesNotExist() {
-
-        boolean result =
-                doctorRepository.existsByLicenseNumber(
-                        "LIC-NOT-EXISTS"
-                );
-
-        assertFalse(result);
-    }
-
-
-    private Doctor createDoctor(
-            String id,
-            String userId,
-            String licenseNumber) {
-
-        return Doctor.builder()
-                .id(id)
-                .userId(userId)
-                .firstName("John")
-                .lastName("Doe")
-                .specialization("Cardiology")
-                .qualification("MBBS")
-                .licenseNumber(licenseNumber)
-                .experienceYears(5)
-                .phone("9876543210")
-                .hospital("City Hospital")
-                .address("Bangalore")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-    }
+    return Doctor.builder()
+        .id(id)
+        .userId(userId)
+        .firstName("John")
+        .lastName("Doe")
+        .specialization("Cardiology")
+        .qualification("MBBS")
+        .licenseNumber(licenseNumber)
+        .experienceYears(5)
+        .phone("9876543210")
+        .hospital("City Hospital")
+        .address("Bangalore")
+        .createdAt(LocalDateTime.now())
+        .updatedAt(LocalDateTime.now())
+        .build();
+  }
 }

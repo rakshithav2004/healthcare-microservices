@@ -20,60 +20,51 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @Operation(
-            summary = "Register a new user",
-            description = "Creates a new patient or doctor account."
-    )
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(
-            @Valid @RequestBody RegisterRequest request) {
+  @Operation(
+      summary = "Register a new user",
+      description = "Creates a new patient or doctor account.")
+  @PostMapping("/register")
+  public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
 
-        AuthResponse response = authService.register(request);
+    AuthResponse response = authService.register(request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
-    }
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
 
-    @Operation(
-            summary = "User login",
-            description = "Authenticates the user and returns a JWT token."
-    )
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
-            @Valid @RequestBody LoginRequest request) {
+  @Operation(
+      summary = "User login",
+      description = "Authenticates the user and returns a JWT token.")
+  @PostMapping("/login")
+  public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 
-        AuthResponse response = authService.login(request);
+    AuthResponse response = authService.login(request);
 
-        return ResponseEntity.ok(response);
-    }
+    return ResponseEntity.ok(response);
+  }
 
-    @Operation(
-            summary = "Get current user",
-            description = "Returns the authenticated user's ID and authorities."
-    )
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/me")
-    public ResponseEntity<String> getCurrentUser(
-            Authentication authentication) {
+  @Operation(
+      summary = "Get current user",
+      description = "Returns the authenticated user's ID and authorities.")
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/me")
+  public ResponseEntity<String> getCurrentUser(Authentication authentication) {
 
-        return ResponseEntity.ok(
-                "User ID: " + authentication.getName()
-                        + ", Authorities: "
-                        + authentication.getAuthorities()
-        );
-    }
+    return ResponseEntity.ok(
+        "User ID: "
+            + authentication.getName()
+            + ", Authorities: "
+            + authentication.getAuthorities());
+  }
 
-    @Operation(
-            summary = "Patient authorization test",
-            description = "Verifies that the authenticated user has the PATIENT role."
-    )
-    @PreAuthorize("hasRole('PATIENT')")
-    @GetMapping("/patient-test")
-    public ResponseEntity<String> patientTest() {
+  @Operation(
+      summary = "Patient authorization test",
+      description = "Verifies that the authenticated user has the PATIENT role.")
+  @PreAuthorize("hasRole('PATIENT')")
+  @GetMapping("/patient-test")
+  public ResponseEntity<String> patientTest() {
 
-        return ResponseEntity.ok("Patient access granted");
-    }
+    return ResponseEntity.ok("Patient access granted");
+  }
 }
