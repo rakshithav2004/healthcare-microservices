@@ -1,3 +1,4 @@
+// Main component for the Healthcare Management System
 function App() {
   return (
     <div>
