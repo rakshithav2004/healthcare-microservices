@@ -226,7 +226,7 @@ The workflow runs on pushes and pull requests targeting the `main` or `master` b
 
 Build a maintainable healthcare application that demonstrates REST API development, microservices architecture, authentication and authorization, service discovery, API gateway routing, automated testing, CI, and frontend integration.
 
-# 👩‍💻 Author
+# Author
 
 **Rakshitha Bai V.**
 
@@ -234,7 +234,7 @@ Computer Science & Engineering — Data Science
 
 Built as a practical Java Spring Boot microservices project demonstrating backend development, distributed service communication, JWT-based security, service discovery, API Gateway architecture, role-based authorization, and fault-tolerant design.
 
-# 🙌 Thank You
+# Thank You
 
 **Thank you for visiting this project!**
 I hope you found it useful and informative. 😊
