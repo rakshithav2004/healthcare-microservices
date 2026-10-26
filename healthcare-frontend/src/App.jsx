@@ -1,6 +1,10 @@
 import "./App.css";
 
 function App() {
+  function handleLoginClick() {
+    alert("Login functionality coming soon!");
+  }
+
   return (
     <div>
       <h1>My Healthcare Application</h1>
@@ -17,7 +21,7 @@ function App() {
         <p>Appointment Scheduling</p>
       </section>
 
-      <button>Login</button>
+      <button onClick={handleLoginClick}>Login</button>
     </div>
   );
 }
