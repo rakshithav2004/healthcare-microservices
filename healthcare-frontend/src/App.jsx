@@ -1,8 +1,11 @@
+import { useState } from "react";
 import "./App.css";
 
 function App() {
+  const [showLogin, setShowLogin] = useState(false);
+
   function handleLoginClick() {
-    alert("Login functionality coming soon!");
+    setShowLogin(!showLogin);
   }
 
   return (
@@ -21,7 +24,22 @@ function App() {
         <p>Appointment Scheduling</p>
       </section>
 
-      <button onClick={handleLoginClick}>Login</button>
+      <button onClick={handleLoginClick}>
+        {showLogin ? "Close Login" : "Login"}
+      </button>
+
+      {showLogin && (
+        <section>
+          <h2>Login</h2>
+
+          <input type="text" placeholder="Username" />
+
+          <br />
+          <br />
+
+          <input type="password" placeholder="Password" />
+        </section>
+      )}
     </div>
   );
 }
