@@ -3,7 +3,7 @@ import "./App.css";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   function handleLoginClick() {
@@ -13,12 +13,12 @@ function App() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    if (!username || !password) {
-      alert("Please enter both username and password.");
+    if (!email || !password) {
+      alert("Please enter both email and password.");
       return;
     }
 
-    alert(`Welcome, ${username}!`);
+    alert(`Welcome, ${email}!`);
   }
 
   return (
@@ -48,9 +48,10 @@ function App() {
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              placeholder="Email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
             />
 
             <br />
@@ -61,6 +62,7 @@ function App() {
               placeholder="Password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              required
             />
 
             <br />
@@ -69,7 +71,7 @@ function App() {
             <button type="submit">Submit</button>
           </form>
 
-          {username && <p>Welcome, {username}!</p>}
+          {email && <p>Welcome, {email}!</p>}
         </section>
       )}
   </div>
