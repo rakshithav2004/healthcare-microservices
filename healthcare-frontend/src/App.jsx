@@ -3,6 +3,7 @@ import "./App.css";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
+  const [username, setUsername] = useState("");
 
   function handleLoginClick() {
     setShowLogin(!showLogin);
@@ -32,7 +33,13 @@ function App() {
         <section>
           <h2>Login</h2>
 
-          <input type="text" placeholder="Username" />
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+          />
+          {username && <p>Welcome, {username}!</p>}
 
           <br />
           <br />
