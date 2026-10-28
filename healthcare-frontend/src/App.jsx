@@ -4,9 +4,21 @@ import "./App.css";
 function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   function handleLoginClick() {
     setShowLogin(!showLogin);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!username || !password) {
+      alert("Please enter both username and password.");
+      return;
+    }
+
+    alert(`Welcome, ${username}!`);
   }
 
   return (
@@ -33,21 +45,34 @@ function App() {
         <section>
           <h2>Login</h2>
 
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-          />
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+            />
+
+            <br />
+            <br />
+
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+
+            <br />
+            <br />
+
+            <button type="submit">Submit</button>
+          </form>
+
           {username && <p>Welcome, {username}!</p>}
-
-          <br />
-          <br />
-
-          <input type="password" placeholder="Password" />
         </section>
       )}
-    </div>
+  </div>
   );
 }
 
