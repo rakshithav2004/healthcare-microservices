@@ -5,20 +5,45 @@ function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
   function handleLoginClick() {
     setShowLogin(!showLogin);
+    setMessage("");
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setMessage("Logging in...");
 
-    if (!email || !password) {
-      alert("Please enter both email and password.");
-      return;
+    try {
+      const response = await fetch(
+        "http://localhost:8080/api/v1/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(data.message || "Login failed. Check your credentials.");
+        return;
+      }
+
+      setMessage("Login successful!");
+      console.log("Login response:", data);
+    } catch (error) {
+      setMessage("Unable to connect to the server. Check your backend.");
+      console.error("Login error:", error);
     }
-
-    alert(`Welcome, ${email}!`);
   }
 
   return (
@@ -47,7 +72,7 @@ function App() {
 
           <form onSubmit={handleSubmit}>
             <input
-              type="text"
+              type="email"
               placeholder="Email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -71,10 +96,12 @@ function App() {
             <button type="submit">Submit</button>
           </form>
 
-          {email && <p>Welcome, {email}!</p>}
+          {email && <p>Email entered: {email}</p>}
+
+          {message && <p>{message}</p>}
         </section>
       )}
-  </div>
+    </div>
   );
 }
 
