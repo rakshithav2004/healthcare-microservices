@@ -6,6 +6,8 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [token, setToken] = useState("");
+  const [user, setUser] = useState(null);
 
   function handleLoginClick() {
     setShowLogin(!showLogin);
@@ -34,12 +36,22 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Login failed. Check your credentials.");
+        setMessage(
+          data.message || "Login failed. Check your credentials."
+        );
         return;
       }
 
+      setToken(data.token);
+
+      setUser({
+        userId: data.userId,
+        email: data.email,
+        role: data.role,
+      });
+
       setMessage("Login successful!");
-      console.log("Login response:", data);
+      setPassword("");
     } catch (error) {
       setMessage("Unable to connect to the server. Check your backend.");
       console.error("Login error:", error);
@@ -51,8 +63,8 @@ function App() {
       <h1>My Healthcare Application</h1>
 
       <p>
-        Welcome to our Healthcare Management System.
-        Manage patients, doctors, and appointments in one place.
+        Welcome to our Healthcare Management System. Manage patients,
+        doctors, and appointments in one place.
       </p>
 
       <section>
@@ -99,6 +111,14 @@ function App() {
           {email && <p>Email entered: {email}</p>}
 
           {message && <p>{message}</p>}
+        </section>
+      )}
+
+      {user && (
+        <section>
+          <h2>Welcome!</h2>
+          <p>Email: {user.email}</p>
+          <p>Role: {user.role}</p>
         </section>
       )}
     </div>
