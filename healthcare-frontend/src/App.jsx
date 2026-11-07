@@ -8,6 +8,7 @@ function App() {
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
   const [user, setUser] = useState(null);
+  const [profileMessage, setProfileMessage] = useState("");
 
   function handleLoginClick() {
     setShowLogin(!showLogin);
@@ -52,9 +53,38 @@ function App() {
 
       setMessage("Login successful!");
       setPassword("");
+      setProfileMessage("");
     } catch (error) {
       setMessage("Unable to connect to the server. Check your backend.");
       console.error("Login error:", error);
+    }
+  }
+
+  async function fetchUserProfile() {
+    setProfileMessage("Loading profile...");
+
+    try {
+      const response = await fetch(
+        "http://localhost:8080/api/v1/auth/me",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.text();
+
+      if (!response.ok) {
+        setProfileMessage(data || "Unable to fetch profile.");
+        return;
+      }
+
+      setProfileMessage(data);
+    } catch (error) {
+      setProfileMessage("Unable to connect to the server.");
+      console.error("Profile error:", error);
     }
   }
 
@@ -119,6 +149,12 @@ function App() {
           <h2>Welcome!</h2>
           <p>Email: {user.email}</p>
           <p>Role: {user.role}</p>
+
+          <button onClick={fetchUserProfile}>
+            View Protected Profile
+          </button>
+
+          {profileMessage && <p>{profileMessage}</p>}
         </section>
       )}
     </div>
