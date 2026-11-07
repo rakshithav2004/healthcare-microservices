@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+import PatientDashboard from "./PatientDashboard";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -144,7 +145,11 @@ function App() {
         </section>
       )}
 
-      {user && (
+      {user && user.role === "PATIENT" && (
+        <PatientDashboard user={user} />
+      )}
+
+      {user && user.role !== "PATIENT" && (
         <section>
           <h2>Welcome!</h2>
           <p>Email: {user.email}</p>
